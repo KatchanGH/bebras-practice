@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ซ้อมสอบ Bebras</title>
+<meta name="description" content="เว็บซ้อมข้อสอบ Bebras (การคิดเชิงคำนวณ) โจทย์สร้างใหม่ทุกชุด จับเวลา ตรวจคะแนน และดูเฉลย">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="wrap">
+
+  <!-- ===== หน้าแรก ===== -->
+  <main id="home">
+    <h1>ซ้อมสอบ Bebras</h1>
+    <p class="muted">โจทย์สร้างใหม่ทุกชุด ทำแล้วดูเฉลยและคะแนนได้ทันที</p>
+
+    <div class="card">
+      <h2>เริ่มสอบจำลอง</h2>
+      <div class="presets" id="presets" role="radiogroup" aria-label="เลือกชุดข้อสอบ"></div>
+      <label class="alabel" for="codeInput">รหัสชุดข้อสอบ</label>
+      <div class="codebox">
+        <input type="text" id="codeInput" maxlength="12" autocomplete="off" spellcheck="false" aria-describedby="codeHelp">
+        <button type="button" id="newCode">สุ่มชุดใหม่</button>
+      </div>
+      <p class="muted small" id="codeHelp">รหัสเดียวกันได้ข้อสอบชุดเดียวกันเสมอ — ใช้ทำซ้ำหรือทำพร้อมเพื่อนได้ กด "สุ่มชุดใหม่" เพื่อได้โจทย์ที่ไม่เคยเจอ</p>
+      <div class="row">
+        <button type="button" class="primary" id="startBtn">เริ่มสอบ</button>
+        <button type="button" id="dailyBtn">ชุดประจำวันนี้</button>
+      </div>
+    </div>
+
+    <div class="card" id="resumeCard" hidden>
+      <h2>มีข้อสอบที่ทำค้างอยู่</h2>
+      <p id="resumeInfo" class="muted"></p>
+      <div class="row">
+        <button type="button" class="primary" id="resumeBtn">ทำต่อ</button>
+        <button type="button" id="discardBtn">ทิ้งชุดนี้</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>ฝึกทีละแบบ</h2>
+      <p class="muted small">ไม่จับเวลา ตอบแล้วรู้ผลและเห็นเฉลยทันที เลือกหัวข้อที่อยากฝึก</p>
+      <div class="topics" id="topics"></div>
+    </div>
+
+    <div class="card" id="histCard" hidden>
+      <h2>ผลที่ผ่านมา</h2>
+      <ul class="hist" id="hist"></ul>
+      <button type="button" id="clearHist" class="small">ล้างประวัติ</button>
+    </div>
+
+    <p class="note"><b>ข้อควรรู้:</b> เว็บนี้เป็นโจทย์ที่สร้างขึ้นเองในแนวเดียวกับ Bebras ไม่ใช่ข้อสอบจริง จำนวนข้อ เวลา และคะแนนในชุดสอบเป็นค่าประมาณตามรูปแบบสากล (ระดับ A/B/C ตอบถูก +6/+9/+12 ตอบผิด −2/−3/−4 ไม่ตอบ 0) ข้อสอบ Bebras Thailand จริงอาจต่างออกไป ดูรายละเอียดทางการที่ <a href="https://www.bebras.in.th" target="_blank" rel="noopener">bebras.in.th</a></p>
+    <p class="muted small"><button type="button" id="themeBtn" class="small">สลับโหมดสว่าง/มืด</button></p>
+  </main>
+
+  <!-- ===== หน้าสอบ ===== -->
+  <main id="exam" hidden>
+    <div class="bar">
+      <div class="bar-in">
+        <div><b id="examName"></b> <span class="muted small" id="examCode"></span></div>
+        <div class="timer" id="timer" role="timer" aria-label="เวลาที่เหลือ">00:00</div>
+      </div>
+      <nav class="nav" id="nav" aria-label="รายการข้อสอบ"></nav>
+      <div class="legend">✓ ตอบแล้ว &nbsp; ⚑ ทำเครื่องหมายไว้ทบทวน</div>
+    </div>
+    <section class="card" id="qcard" aria-live="polite"></section>
+    <div class="row">
+      <button type="button" id="prevBtn">← ข้อก่อนหน้า</button>
+      <button type="button" id="nextBtn" class="primary">ข้อถัดไป →</button>
+      <span class="grow"></span>
+      <button type="button" id="finishBtn">ส่งข้อสอบ</button>
+    </div>
+  </main>
+
+  <!-- ===== หน้าผลสอบ ===== -->
+  <main id="result" hidden>
+    <div class="top"><h1>ผลสอบ</h1><button type="button" id="homeBtn">กลับหน้าแรก</button></div>
+    <div class="card" id="summary"></div>
+    <div class="row" style="margin-bottom:14px">
+      <button type="button" class="primary" id="againNew">ทำชุดใหม่</button>
+      <button type="button" id="againSame">ทำชุดนี้ซ้ำ</button>
+    </div>
+    <div class="card" id="reviews"></div>
+  </main>
+
+  <!-- ===== โหมดฝึก ===== -->
+  <main id="practice" hidden>
+    <div class="top"><h1 id="pTitle">ฝึก</h1><button type="button" id="pBack">← กลับ</button></div>
+    <section class="card" id="pcard"></section>
+    <div class="row">
+      <button type="button" class="primary" id="pCheck">ตรวจคำตอบ</button>
+      <button type="button" id="pNext">โจทย์ใหม่</button>
+    </div>
+  </main>
+</div>
+
+<dialog id="dlg" aria-labelledby="dlgTitle">
+  <h2 id="dlgTitle"></h2>
+  <p id="dlgBody"></p>
+  <div class="row end">
+    <button type="button" id="dlgNo">ยกเลิก</button>
+    <button type="button" id="dlgYes" class="primary">ยืนยัน</button>
+  </div>
+</dialog>
+
+<script src="js/core.js"></script>
+<script src="js/tasks/shared.js"></script>
+<script src="js/tasks/level-a.js"></script>
+<script src="js/tasks/level-b.js"></script>
+<script src="js/tasks/level-c.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
